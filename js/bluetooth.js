@@ -41,6 +41,11 @@ class Bluetooth {
     disconnect() {
         this.device.gatt.disconnect();
     }
+
+    send(data) {
+        /* HANDLE SEND DATA THROUGH BLUETOOTH */
+        this.characteristic.writeValue(new TextEncoder().encode(data));
+    }
 }
 
 const bluetooth = new Bluetooth(service);
