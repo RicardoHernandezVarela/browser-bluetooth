@@ -37,7 +37,7 @@ class Bluetooth {
                 this.receive();
             })
         } catch (error) {
-            alert('This browser or device does not support bluetooth connection');
+            alert('This browser or device does not support bluetooth connection.');
         }
     }
 
@@ -57,8 +57,19 @@ class Bluetooth {
 }
 
 function handleIncomingData(event) {
-    const dataArray = new TextDecoder().decode(event.target.value);
-    console.log(dataArray);
+    const response = new TextDecoder().decode(event.target.value);
+    
+    let dataArray = response.split("\n");
+    dataArray.pop();
+
+    let values = dataArray.map(num => {
+        let value = parseFloat(num);
+        if(value !== NaN) {
+            return value;
+        }
+    });
+
+    sensorData.push(...values);
 }
 
 let sensorData = [];
