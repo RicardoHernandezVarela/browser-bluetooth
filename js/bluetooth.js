@@ -4,24 +4,42 @@ class Bluetooth {
     constructor(service) {
         this.service = service;
         this.device = null;
+        this.characteristic = null;
     }
 
-    async connect(){
+    connect() {
         try {
 
             /* DISPLAY LIST OF AVALIABLE DEVICES */
-            this.device = await navigator.bluetooth.requestDevice({
+            navigator.bluetooth.requestDevice({
                 optionalServices: [this.service],
                 acceptAllDevices: true
-            });
-
-            /* CONNECT TO BROWSER */
-            await this.device.gatt.connect();
-
-
+            })
+            .then(device => {
+                this.device = device;
+                /* CONNECT TO BROWSER */
+                return this.device.gatt.connect();
+            })
+            .then(gattserver => {
+                /* GET SERVICE FROM GATT SERVER */
+                return gattserver.getPrimaryService(this.service);
+            })
+            .then(service => {
+                /* GET CHARACTERISTICS FROM SERVICE */
+                return service.getCharacteristics();
+            })
+            .then(characteristics => {
+                this.characteristic = characteristics[0];
+                /* CONNECT TO CHARACTERISTIC */
+                return this.characteristic.startNotifications();
+            })
         } catch (error) {
-            alert('Conexión bluetooth no disponible en este dispositivo o navegador.');
+            alert('This browser or device does not support bluetooth connection');
         }
+    }
+
+    disconnect() {
+        this.device.gatt.disconnect();
     }
 }
 
