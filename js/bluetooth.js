@@ -1,10 +1,9 @@
-const service = 0xFFE0;
-
 class Bluetooth {
-    constructor(service) {
+    constructor(service, receiveData) {
         this.service = service;
         this.device = null;
         this.characteristic = null;
+        this.receiveData = receiveData;
     }
 
     connect() {
@@ -33,6 +32,10 @@ class Bluetooth {
                 /* CONNECT TO CHARACTERISTIC */
                 return this.characteristic.startNotifications();
             })
+            .then(() => {
+                /* START HANDLING DATA COMING TO THE BROWSER FROM BLUETOOTH */
+                this.receive();
+            })
         } catch (error) {
             alert('This browser or device does not support bluetooth connection');
         }
@@ -46,7 +49,19 @@ class Bluetooth {
         /* HANDLE SEND DATA THROUGH BLUETOOTH */
         this.characteristic.writeValue(new TextEncoder().encode(data));
     }
+
+    receive(handleIncomingData = this.receiveData) {
+        /* DEFINE ANOTHER FUNCTION TO HANDLE DATA COMING TO THE BROWSER FROM BLUETOOTH */
+        this.characteristic.oncharacteristicvaluechanged = handleIncomingData;
+    }
 }
 
-const bluetooth = new Bluetooth(service);
+function handleIncomingData(event) {
+    const dataArray = new TextDecoder().decode(event.target.value);
+    console.log(dataArray);
+}
+
+let sensorData = [];
+const service = 0xFFE0;
+const bluetooth = new Bluetooth(service, handleIncomingData);
     
