@@ -1,6 +1,7 @@
 class Bluetooth {
-    constructor(service, receiveData) {
-        this.service = service;
+    constructor(config, receiveData) {
+        this.service = config.service;
+        this.uuid = config.uuid;
         this.device = null;
         this.characteristic = null;
         this.receiveData = receiveData;
@@ -28,8 +29,13 @@ class Bluetooth {
                 return service.getCharacteristics();
             })
             .then(characteristics => {
-                this.characteristic = characteristics[0];
-                /* CONNECT TO CHARACTERISTIC */
+                /* CONNECT TO CHARACTERISTIC USING UUID IN THE CONFIG */
+                for(let item in characteristics) {
+                    if(characteristics[item].uuid === this.uuid) {
+                        this.characteristic = characteristics[item];
+                    }
+                }
+                
                 return this.characteristic.startNotifications();
             })
             .then(() => {
@@ -56,6 +62,12 @@ class Bluetooth {
     }
 }
 
+let sensorData = [];
+const config = {
+    "service": 0xFFE0,
+    "uuid": "0000ffe1-0000-1000-8000-00805f9b34fb"
+}
+
 function handleIncomingData(event) {
     const response = new TextDecoder().decode(event.target.value);
     
@@ -72,7 +84,5 @@ function handleIncomingData(event) {
     sensorData.push(...values);
 }
 
-let sensorData = [];
-const service = 0xFFE0;
-const bluetooth = new Bluetooth(service, handleIncomingData);
+const bluetooth = new Bluetooth(config, handleIncomingData);
     
