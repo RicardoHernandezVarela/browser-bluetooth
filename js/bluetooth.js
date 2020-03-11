@@ -62,7 +62,8 @@ class Bluetooth {
     }
 }
 
-let sensorData = [];
+let btData = [];
+
 const config = {
     "service": 0xFFE0,
     "uuid": "0000ffe1-0000-1000-8000-00805f9b34fb"
@@ -81,7 +82,7 @@ function handleIncomingData(event) {
         }
     });
 
-    sensorData.push(...values);
+    btData.push(...values);
 }
 
 const bluetooth = new Bluetooth(config, handleIncomingData);
